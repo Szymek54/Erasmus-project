@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        
+        <style>
+        
+            #tab{text-align: center;border-collapse: collapse}
+            #tab th,td{padding: 5px 20px 5px 20px}
+            #tab th{background-color: #1DA1F2; padding-top: 10px; padding-bottom: 10px}
+            #tab tr:nth-child(even){background-color: #F5F8FA}
+            #tab tr:nth-child(odd){background-color: #E1E8ED}
+            
+        </style>
+        
+    </head>
+    <body>
+
+        <table id="tab"><tr><th>Account ID</th><th>Audience</th><th>Followers</th></tr></table>
+        
+    
+        <script>
+            
+            var tab = document.getElementById("tab");
+            var text = "";
+            
+            var twitter = {
+                "account":[
+                    {"id":0,"audience": 250,"followers": 120},
+                    {"id":1,"audience": 200,"followers": 200},
+                    {"id":2,"audience": 1000,"followers": 205},
+                    {"id":3,"audience": 130,"followers": 90},
+                    {"id":4,"audience": 90,"followers": 300},
+                    {"id":5,"audience": 290,"followers": 140}
+                ]}
+
+            for(var i=0; i < twitter.account.length; i++)
+                {
+
+                    text +='<tr><td>'+twitter.account[i].id+'</td>';
+                    text +='<td>'+twitter.account[i].audience+'</td>';
+                    text +='<td>'+twitter.account[i].followers+'</td></tr>';
+
+                }
+            tab.innerHTML+=text;
+            console.log(twitter);
+        
+        
+        </script>
+    
+    </body>
+    
+</html>
