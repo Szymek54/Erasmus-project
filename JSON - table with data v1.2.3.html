@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        
+        <style>
+        
+            body{margin: 0}
+            #tab{text-align: center;border-collapse: collapse; float: left; width: 100%;}
+            #tab th,td{padding: 5px 20px 5px 20px}
+            #tab th{background-color: #1DA1F2; padding-top: 10px; padding-bottom: 10px}
+            #tab tr:nth-child(even){background-color: #F5F8FA}
+            #tab tr:nth-child(odd){background-color: #E1E8ED}
+            #tab td:nth-child(3){text-align: left}
+            
+            
+        </style>
+        
+    </head>
+    <body>
+
+        <table id="tab"></table>
+        <input id="value_butt" type="button" value="Change values" style="position: fixed; right: 50px; top: 20px">
+        
+    
+        <script>
+            document.addEventListener("DOMContentLoaded", function(event){
+                
+            
+            var tab = document.getElementById("tab");
+            var text = "";
+            
+            //Creating a JSON model
+            var twitter = {
+                "account":[
+                    {"id":0,"audience": 5,"followers":[2,5,0,6,1] }]}
+            
+            //Function loading data to the table
+            function load_data(){
+                text += '<tr><th>Account ID</th><th>Audience</th><th>Followers ID\'s</th></tr>';
+                for(var i=0; i < twitter.account.length; i++)
+                    {
+
+                        text +='<tr><td>'+twitter.account[i].id+'</td>';
+                        text +='<td>'+twitter.account[i].audience+'</td><td>';
+                        for(var j=0; j < twitter.account[i].followers.length; j++)
+                            text += twitter.account[i].followers[j]+', ';
+
+                    }
+                
+                text += "</td></tr>";
+                tab.innerHTML=text;
+                text = "";
+            }
+            
+            //Function creating user object
+            function user(){
+                    this.id = Math.round(Math.random()*1000);
+                    this.audience = Math.round(Math.random()*300);
+                    this.followers = [];
+                    randomize_followers(this.followers, this.audience);
+                    console.log(this.followers);
+                }
+            
+            //Randomizing followers ID's
+            function randomize_followers(follows, aud){
+                for(var i = 0; i < aud; i++)
+                        {
+                            var follower = Math.round(Math.random()*10000)
+                            if(!follows.includes(follower))
+                                follows.push(follower);
+                        }
+                console.log(follows);
+                return follows;
+            }
+                
+            //Changing values in object on button click
+            document.getElementById("value_butt").onclick = function(){
+                var id_new = parseInt(prompt("Change values of user with id: "));
+                
+                //variable responsible for checking if the id is in the array
+                var idRepeated = false;
+                
+                for(var i = 0;twitter.account.length; i++){
+                    if(twitter.account[i].id==id_new){
+                        idRepeated = true;
+                        var index=i;
+                        break;
+                    }
+                }
+                
+                if(idRepeated){
+                var audience_new = parseInt(prompt("New audience value: "));
+                twitter.account[index].followers = [];
+                var followers_new = randomize_followers(twitter.account[index].followers, audience_new);
+                console.log(id_new);
+                for(var i=0; i < twitter.account.length; i++)
+                    {
+                        if(twitter.account[i].id==id_new){
+                            if(!isNaN(audience_new))
+                                twitter.account[i].audience=audience_new;
+                        }
+                    }
+                }
+                else
+                    alert("No accounts with given id")
+                
+                console.log(twitter);
+                load_data();    
+            }
+            
+            //creating sample accounts
+            for(var i = 0; i < 40; i++)
+                twitter.account.push(new user())
+                
+            load_data();    
+        
+        })
+            
+        </script>
+    
+    </body>
+    
+</html>
