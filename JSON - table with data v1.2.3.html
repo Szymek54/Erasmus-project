@@ -7,7 +7,7 @@
             body{margin: 0}
             #tab{text-align: center;border-collapse: collapse; float: left; width: 100%;}
             #tab th,td{padding: 5px 20px 5px 20px}
-            #tab th{background-color: #1DA1F2; padding-top: 10px; padding-bottom: 10px}
+            #tab th{background-color: #1DA1F2; padding-top: 10px; padding-bottom: 10px; color: white}
             #tab tr:nth-child(even){background-color: #F5F8FA}
             #tab tr:nth-child(odd){background-color: #E1E8ED}
             #tab td:nth-child(3){text-align: left}
@@ -43,6 +43,9 @@
                         text +='<tr><td>'+twitter.account[i].id+'</td>';
                         text +='<td>'+twitter.account[i].audience+'</td><td>';
                         for(var j=0; j < twitter.account[i].followers.length; j++)
+                            if(j==twitter.account[i].followers.length-1)
+                            text += twitter.account[i].followers[j];
+                            else
                             text += twitter.account[i].followers[j]+', ';
 
                     }
@@ -54,7 +57,7 @@
             
             //Function creating user object
             function user(){
-                    this.id = Math.round(Math.random()*1000);
+                    this.id = Math.round(Math.random()*100000);
                     this.audience = Math.round(Math.random()*300);
                     this.followers = [];
                     randomize_followers(this.followers, this.audience);
@@ -65,7 +68,7 @@
             function randomize_followers(follows, aud){
                 for(var i = 0; i < aud; i++)
                         {
-                            var follower = Math.round(Math.random()*10000)
+                            var follower = Math.round(Math.random()*1000000)
                             if(!follows.includes(follower))
                                 follows.push(follower);
                         }
@@ -109,7 +112,7 @@
             }
             
             //creating sample accounts
-            for(var i = 0; i < 40; i++)
+            for(var i = 0; i < 100; i++)
                 twitter.account.push(new user())
                 
             load_data();    
