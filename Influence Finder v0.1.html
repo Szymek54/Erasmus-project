@@ -1,0 +1,19 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Influence Finder</title>
+    </head>
+    <body>
+        <script>
+            
+            var authentication = new XMLHttpRequest();
+            authentication.open('POST','https://crossorigin.me/https://api.twitter.com/oauth2/token',true);
+            authentication.setRequestHeader('Authorization','Basic RFk3TGJvZ2VGZmI2ZVltNDNEeFpRd0VyWDpPaGxPZnNxM3MzU2ZMb0hXRGdzZjI4ekZMc29Tb3B3TWRUcEl3WFB4bTF6QUxuTGVvMg==');
+            authentication.setRequestHeader('Content-Type','application/x-www-form-urlencoded;charset=UTF-8');
+            authentication.send('grant_type=client_credentials');
+            alert(authentication.readyState);
+
+        </script>
+    </body>
+</html>
