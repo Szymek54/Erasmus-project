@@ -17,9 +17,9 @@ var gettingdata = setInterval(function () {
     "method": "GET",
     "hostname": "api.twitter.com",
     "port": null,
-    "path": "/1.1/followers/list.json?cursor="+curs+"&screen_name=neilharbinger&skip_status=true&include_user_entities=false",
+    "path": "/1.1/followers/ids.json?cursor="+curs+"&screen_name=twitterdev&count=5000&stringify_ids=true",
     "headers": {
-      "authorization": "Bearer xxx",
+      "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAADXu9QAAAAAAQqsxQpd0yKovMuHmw3lmIITyyUg%3DRMxxnYwQYwF6BorZeP24mzj0F5wbBk2pcaW6WkhrpgXpCTjTwH",
     }
   };
 
@@ -81,9 +81,9 @@ function showJson(str){
 function toDatabase(str,date){
   var toWrite = "";
   toWrite+="\r\nDate: "+ date +"    Cursor: "+curs+"\r\n";
-  for(var i=0;i<str.users.length;i++){
-    console.log(i+". id: "+str.users[i].id+"\nid_str: "+str.users[i].id_str);
-    toWrite +="id: "+str.users[i].id+"\r\nid_str: "+str.users[i].id_str+"\r\n";
+  for(var i=0;i<str.ids.length;i++){
+    console.log(i+". id: "+str.ids[i]);
+    toWrite +="id: "+str.ids[i]+"\r\n";
   }
   fs.appendFileSync('file1.txt', toWrite);
 }
