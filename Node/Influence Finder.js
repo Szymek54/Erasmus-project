@@ -1,40 +1,90 @@
 var https = require('https');
+var http = require('http');
+var fs = require('fs');
+var curs = "-1";
 /**
  * HOW TO Make an HTTP Call - GET
  */
+
+// http.createServer(function (req,resp){
+
 // options for GET
 
-
-var optionsget = {
-  "method": "GET",
-  "hostname": "api.twitter.com",
-  "port": null,
-  "path": "/1.1/followers/ids.json?screen_name=septicwolf818",
-  "headers": {
-  "authorization": "Bearer xxxxx",
-}
-};
-
-console.info('Options prepared:');
-console.info(optionsget);
-console.info('Do the GET call');
-
 // do the GET request
-var reqGet = https.request(optionsget, function(res) {
-    console.log("statusCode: ", res.statusCode);
-    // uncomment it for header details
-  console.log("headers: ", res.headers);
-  console.log("headers: ", optionsget.headers);
+var gettingdata = setInterval(function () {
 
-    res.on('data', function(d) {
+  var optionsget = {
+    "method": "GET",
+    "hostname": "api.twitter.com",
+    "port": null,
+    "path": "/1.1/followers/list.json?cursor="+curs+"&screen_name=neilharbinger&skip_status=true&include_user_entities=false",
+    "headers": {
+      "authorization": "Bearer xxx",
+    }
+  };
+
+  console.info('Options prepared:');
+  console.info(optionsget);
+  console.info('Do the GET call');
+
+var reqGet = https.request(optionsget, function(res) {
+  var str = "";
+  console.log("statusCode: ", res.statusCode);
+    // uncomment it for header details
+   console.log("headers: ", res.headers);
+   console.log("headers: ", optionsget.headers);
+
+    if(res.statusCode>=200 && res.statusCode<400){
+      res.on('data', function(d) {
         console.info('GET result:\n');
         process.stdout.write(d);
         console.info('\n\nCall completed');
+        str+=d;
     });
-
+  }
+    else {
+      console.info("\n\n\nAn error occured");
+    }
+    res.on('end', function() {
+      dataWrite(str);
+      str = JSON.parse(str);
+      toDatabase(str, res.headers['date'].toString());
+      curs = str.next_cursor_str;
+      console.log("Next curs------------"+curs);
+      str = JSON.stringify(str);
+    })
 });
-
 reqGet.end();
 reqGet.on('error', function(e) {
     console.error(e);
 });
+  if(curs=='0')
+  clearInterval(gettingdata);
+}, 5000);
+function dataWrite(str){
+  fs.writeFile('file.txt', str, function(err, data){
+      if (err) console.log(err);
+      console.log("Successfully Written to File.");
+
+  });
+}
+
+function showJson(str){
+  console.log(str);
+  str = JSON.parse(str);
+  for(var i=0;i<jsonObj.ids.length;i++){
+    console.log(str.ids[i]);
+  }
+  str = JSON.stringify(str);
+}
+
+function toDatabase(str,date){
+  var toWrite = "";
+  toWrite+="\r\nDate: "+ date +"    Cursor: "+curs+"\r\n";
+  for(var i=0;i<str.users.length;i++){
+    console.log(i+". id: "+str.users[i].id+"\nid_str: "+str.users[i].id_str);
+    toWrite +="id: "+str.users[i].id+"\r\nid_str: "+str.users[i].id_str+"\r\n";
+  }
+  fs.appendFileSync('file1.txt', toWrite);
+}
+// }).listen(8080);
