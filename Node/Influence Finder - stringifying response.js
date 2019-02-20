@@ -3,6 +3,7 @@ var https = require('https');
 // var http = require('http');
 var fs = require('fs');
 var curs = "-1";
+var follower_nr = 0;
 // http.createServer(function (req,resp){
 
 //interval set to 1 minute so 1 request is made in 1 minute, this helps to avoid breaking rate limits
@@ -13,7 +14,7 @@ var gettingdata = setInterval(function () {
     "method": "GET",
     "hostname": "api.twitter.com",
     "port": null,
-    "path": "/1.1/followers/ids.json?cursor=-1&screen_name=neilharbinger&count=5000&stringify_ids=true",
+    "path": "/1.1/followers/ids.json?cursor="+curs+"&screen_name=AswathDamodaran&count=5000&stringify_ids=true",
     "headers": {
       "authorization": "Bearer xxx",
     }
@@ -91,7 +92,8 @@ function toDatabase(str,date){
   toWrite+="\r\nDate: "+ date +"    Cursor: "+curs+"\r\n";
   for(var i=0;i<str.ids.length;i++){
     console.log(i+". id: "+str.ids[i]);
-    toWrite +="id: "+str.ids[i]+"\r\n";
+    follower_nr++;
+    toWrite +="Follower number: "+follower_nr+"   id: "+str.ids[i]+"\r\n";
   }
   fs.appendFileSync('file1-stringify.txt', toWrite);
 }
