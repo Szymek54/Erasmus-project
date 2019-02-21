@@ -1,13 +1,59 @@
 //getting only stringified ids from twitter
 var https = require('https');
-// var http = require('http');
 var fs = require('fs');
+var mysql = require('mysql');
 var curs = "-1";
 var follower_nr = 0;
-// http.createServer(function (req,resp){
+var screen_name = 'twitterdev';
+var influencerID = 0;
 
+
+  // options for GET
+  var firstget = {
+    "method": "GET",
+    "hostname": "api.twitter.com",
+    "port": null,
+    "path": "/1.1/users/show.json?screen_name="+screen_name,
+    "headers": {
+      "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAADXu9QAAAAAAQqsxQpd0yKovMuHmw3lmIITyyUg%3DRMxxnYwQYwF6BorZeP24mzj0F5wbBk2pcaW6WkhrpgXpCTjTwH",
+    }
+  };
+
+  console.info('Options prepared:');
+  console.info(firstget);
+  console.info('Do the GET call');
+
+var reqInf = https.request(firstget, function(res) {
+
+    var infData = "";
+
+   console.log("statusCode: ", res.statusCode);
+   console.log("headers: ", res.headers);
+   console.log("headers: ", firstget.headers);
+
+    if(res.statusCode>=200 && res.statusCode<400){
+      res.on('data', function(d) {
+        console.info('GET result:\n');
+        process.stdout.write(d);
+        infData += d;
+        console.info('\n\nCall completed');
+    });
+  }
+    else {
+      console.info("\n\n\nAn error occured");
+    }
+
+    res.on('end',function() {
+      infData = JSON.parse(infData);
+      influencerID = infData.id_str;
+  })
+});
+reqInf.end();
+reqInf.on('error', function(e) {
+    console.error(e);
+});
 //interval set to 1 minute so 1 request is made in 1 minute, this helps to avoid breaking rate limits
-var gettingdata = setInterval(function () {
+// var gettingdata = setInterval(function () {
 
   // options for GET
   var optionsget = {
@@ -16,7 +62,7 @@ var gettingdata = setInterval(function () {
     "port": null,
     "path": "/1.1/followers/ids.json?cursor="+curs+"&screen_name=AswathDamodaran&count=5000&stringify_ids=true",
     "headers": {
-      "authorization": "Bearer xxx",
+      "authorization": "Bearer xx",
     }
   };
 
@@ -27,6 +73,7 @@ var gettingdata = setInterval(function () {
   // do the GET request
 var reqGet = https.request(optionsget, function(res) {
 
+  if(curs!=0){
    //str = JSON file got from twitter
    var str = "";
    console.log("statusCode: ", res.statusCode);
@@ -37,7 +84,7 @@ var reqGet = https.request(optionsget, function(res) {
     if(res.statusCode>=200 && res.statusCode<400){
       res.on('data', function(d) {
         console.info('GET result:\n');
-        // process.stdout.write(d);
+        //process.stdout.write(d);
         console.info('\n\nCall completed');
         str+=d;
       });
@@ -50,11 +97,16 @@ var reqGet = https.request(optionsget, function(res) {
     res.on('end', function() {
       dataWrite(str);
       str = JSON.parse(str);
-      toDatabase(str, res.headers['date'].toString());
+      // toDatabase(str, res.headers['date'].toString());
+      exportData(str);
       curs = str.next_cursor_str;
       console.log("Next curs------------"+curs);
       str = JSON.stringify(str);
     })
+  }
+  else {
+    console.log("NO MORE IDS TO SEARCH FOR");
+  }
 });
 
 reqGet.end();
@@ -66,23 +118,40 @@ reqGet.on('error', function(e) {
   //if next cursor == 0 break out of interval
   if(curs=='0')
   clearInterval(gettingdata);
-}, 60000);
+// }, 3000);
+
+function exportData(data){
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "twitter"
+});
+
+con.connect(function(err) {
+  console.log("Connected!" );
+  var sql = 'INSERT INTO follower_list (influencer_id, follower_id) VALUES (?,?)';
+
+  for(var i=0; i<data.ids.length;i++){
+    console.log(data.ids[i]);
+  var values = [influencerID, data.ids[i]];
+  con.query(sql, [values], function (err, result) {
+     console.log("Number of records inserted: " + i);
+  });
+}
+});
+  con.on('error', function(err) {
+  console.log("[mysql error]",err);
+});
+
+}
 
 function dataWrite(str){
   fs.writeFile('file-stringify.txt', str, function(err, data){
       if (err) console.log(err);
       console.log("Successfully Written to File.");
-
   });
-}
-
-function showJson(str){
-  console.log(str);
-  str = JSON.parse(str);
-  for(var i=0;i<jsonObj.ids.length;i++){
-    console.log(str.ids[i]);
-  }
-  str = JSON.stringify(str);
 }
 
 //appending a data to a .txt file
@@ -91,10 +160,9 @@ function toDatabase(str,date){
   //setting date and current cursor
   toWrite+="\r\nDate: "+ date +"    Cursor: "+curs+"\r\n";
   for(var i=0;i<str.ids.length;i++){
-    console.log(i+". id: "+str.ids[i]);
+    console.log(follower_nr+". id: "+str.ids[i]);
     follower_nr++;
     toWrite +="Follower number: "+follower_nr+"   id: "+str.ids[i]+"\r\n";
   }
   fs.appendFileSync('file1-stringify.txt', toWrite);
 }
-// }).listen(8080);
