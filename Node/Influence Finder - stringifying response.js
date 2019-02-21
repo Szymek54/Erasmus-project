@@ -15,7 +15,7 @@ var influencerID = 0;
     "port": null,
     "path": "/1.1/users/show.json?screen_name="+screen_name,
     "headers": {
-      "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAADXu9QAAAAAAQqsxQpd0yKovMuHmw3lmIITyyUg%3DRMxxnYwQYwF6BorZeP24mzj0F5wbBk2pcaW6WkhrpgXpCTjTwH",
+      "authorization": "Bearer xxx",
     }
   };
 
