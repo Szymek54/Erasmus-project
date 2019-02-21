@@ -4,7 +4,7 @@ var fs = require('fs');
 var mysql = require('mysql');
 var curs = "-1";
 var follower_nr = 0;
-var screen_name = 'twitterdev';
+var screen_name = 'wykop';
 var influencerID = 0;
 
 
@@ -15,7 +15,7 @@ var influencerID = 0;
     "port": null,
     "path": "/1.1/users/show.json?screen_name="+screen_name,
     "headers": {
-      "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAADXu9QAAAAAAQqsxQpd0yKovMuHmw3lmIITyyUg%3DRMxxnYwQYwF6BorZeP24mzj0F5wbBk2pcaW6WkhrpgXpCTjTwH",
+      "authorization": "Bearer xxx",
     }
   };
 
@@ -53,16 +53,16 @@ reqInf.on('error', function(e) {
     console.error(e);
 });
 //interval set to 1 minute so 1 request is made in 1 minute, this helps to avoid breaking rate limits
-// var gettingdata = setInterval(function () {
+var gettingdata = setInterval(function () {
 
   // options for GET
   var optionsget = {
     "method": "GET",
     "hostname": "api.twitter.com",
     "port": null,
-    "path": "/1.1/followers/ids.json?cursor="+curs+"&screen_name=AswathDamodaran&count=5000&stringify_ids=true",
+    "path": "/1.1/followers/ids.json?cursor="+curs+"&screen_name="+screen_name+"&count=5000&stringify_ids=true",
     "headers": {
-      "authorization": "Bearer xx",
+      "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAADXu9QAAAAAAQqsxQpd0yKovMuHmw3lmIITyyUg%3DRMxxnYwQYwF6BorZeP24mzj0F5wbBk2pcaW6WkhrpgXpCTjTwH",
     }
   };
 
@@ -95,12 +95,11 @@ var reqGet = https.request(optionsget, function(res) {
 
     // on response end write data, and move cursor to next place
     res.on('end', function() {
-      dataWrite(str);
       str = JSON.parse(str);
-      // toDatabase(str, res.headers['date'].toString());
-      exportData(str);
+      toFile(str, res.headers['date'].toString());
+      toDatabase(str);
       curs = str.next_cursor_str;
-      console.log("Next curs------------"+curs);
+      // console.log("Next curs------------"+curs);
       str = JSON.stringify(str);
     })
   }
@@ -118,26 +117,24 @@ reqGet.on('error', function(e) {
   //if next cursor == 0 break out of interval
   if(curs=='0')
   clearInterval(gettingdata);
-// }, 3000);
+}, 60000);
 
-function exportData(data){
+function toDatabase(data){
 
 var con = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "",
+  user: "admin",
+  password: "P3uveR$L",
   database: "twitter"
 });
 
 con.connect(function(err) {
   console.log("Connected!" );
   var sql = 'INSERT INTO follower_list (influencer_id, follower_id) VALUES (?,?)';
-
   for(var i=0; i<data.ids.length;i++){
-    console.log(data.ids[i]);
   var values = [influencerID, data.ids[i]];
-  con.query(sql, [values], function (err, result) {
-     console.log("Number of records inserted: " + i);
+  con.query(sql, values, function (err, result) {
+    // console.log("Number of records inserted: " + result.rowsAffected);
   });
 }
 });
@@ -147,15 +144,15 @@ con.connect(function(err) {
 
 }
 
-function dataWrite(str){
-  fs.writeFile('file-stringify.txt', str, function(err, data){
-      if (err) console.log(err);
-      console.log("Successfully Written to File.");
-  });
-}
+// function dataWrite(str){
+//   fs.writeFile('file-stringify.txt', str, function(err, data){
+//       if (err) console.log(err);
+//       console.log("Successfully Written to File.");
+//   });
+// }
 
 //appending a data to a .txt file
-function toDatabase(str,date){
+function toFile(str,date){
   var toWrite = "";
   //setting date and current cursor
   toWrite+="\r\nDate: "+ date +"    Cursor: "+curs+"\r\n";
