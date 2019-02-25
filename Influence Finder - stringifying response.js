@@ -85,8 +85,9 @@ var reqGet = https.request(optionsget, function(res) {
    //if no errors occured continue
     if(res.statusCode>=200 && res.statusCode<400){
       res.on('data', function(d) {
+        //results for every get request
         console.info('GET result:\n');
-        //process.stdout.write(d);
+        process.stdout.write(d);
         console.info('\n\nCall completed');
         str+=d;
       });
@@ -99,6 +100,7 @@ var reqGet = https.request(optionsget, function(res) {
     res.on('end', function() {
       str = JSON.parse(str);
       // toFile(str, res.headers['date'].toString());
+      console.log(str);
       toDatabase(str);
       curs = str.next_cursor_str;
       // console.log("Next curs------------"+curs);
@@ -126,17 +128,18 @@ function toDatabase(data){
 var con = mysql.createConnection({
   host: "localhost",
   user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASS,
-  database: "twitter"
+  password: process.env.MYSQL_PASS
 });
 
 con.connect(function(err) {
   console.log("Connected!" );
-  var sql = 'INSERT INTO follower_list (influencer_id, follower_id) VALUES (?,?)';
+  con.query("CREATE DATABASE IF NOT EXISTS twitter");
+  con.query("CREATE TABLE IF NOT EXISTS `twitter`.`follower_list` ( `influencer_id` BIGINT UNSIGNED NOT NULL , `follower_id` BIGINT UNSIGNED NOT NULL ) ENGINE = InnoDB");
+  var sql = 'INSERT INTO twitter.follower_list (influencer_id, follower_id) VALUES (?,?)';
   for(var i=0; i<data.ids.length;i++){
   var values = [influencerID, data.ids[i]];
   con.query(sql, values, function (err, result) {
-    // console.log("Number of records inserted: " + result.rowsAffected);
+    //console.log("Number of records inserted: " + result.rowsAffected);
   });
 }
 });
@@ -146,14 +149,6 @@ con.connect(function(err) {
 
 }
 
-// function dataWrite(str){
-//   fs.writeFile('file-stringify.txt', str, function(err, data){
-//       if (err) console.log(err);
-//       console.log("Successfully Written to File.");
-//   });
-// }
-
-//appending a data to a .txt file
 function toFile(str,date){
   var toWrite = "";
   //setting date and current cursor
