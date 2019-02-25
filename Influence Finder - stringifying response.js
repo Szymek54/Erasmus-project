@@ -2,8 +2,7 @@
 var https = require('https');
 var fs = require('fs');
 var mysql = require('mysql');
-const dotenv  = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 var curs = "-1";
 var follower_nr = 0;
 var screen_name = 'wykop';
