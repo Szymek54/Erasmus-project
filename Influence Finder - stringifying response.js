@@ -4,8 +4,8 @@ var fs = require('fs');
 var mysql = require('mysql');
 require('dotenv').config();
 var curs = "-1";
-var follower_nr = 0;
-var screen_name = 'wykop';
+var influencer_nr = 1;    //influencer id in database with screen names
+var screen_name = 'neilharbinger';    //
 var influencerID = 0;
 
 
@@ -72,9 +72,9 @@ var gettingdata = setInterval(function () {
   console.info('Do the GET call');
 
   // do the GET request
+  if(curs!=0){
 var reqGet = https.request(optionsget, function(res) {
 
-  if(curs!=0){
    //str = JSON file got from twitter
    var str = "";
    console.log("statusCode: ", res.statusCode);
@@ -105,10 +105,6 @@ var reqGet = https.request(optionsget, function(res) {
       // console.log("Next curs------------"+curs);
       str = JSON.stringify(str);
     })
-  }
-  else {
-    console.log("NO MORE IDS TO SEARCH FOR");
-  }
 });
 
 reqGet.end();
@@ -116,10 +112,15 @@ reqGet.end();
 reqGet.on('error', function(e) {
     console.error(e);
 });
+}
+else {
+  console.log("NO MORE IDS TO SEARCH FOR");
+}
 
   //if next cursor == 0 break out of interval
   if(curs=='0')
-  clearInterval(gettingdata);
+  nextInfluencer();
+  // clearInterval(gettingdata);
 }, 60000);
 
 function toDatabase(data){
@@ -131,6 +132,7 @@ var con = mysql.createConnection({
 });
 
 con.connect(function(err) {
+  if(err) throw err;
   console.log("Connected!" );
   con.query("CREATE DATABASE IF NOT EXISTS twitter");
   con.query("CREATE TABLE IF NOT EXISTS `twitter`.`follower_list` ( `influencer_id` BIGINT UNSIGNED NOT NULL , `follower_id` BIGINT UNSIGNED NOT NULL ) ENGINE = InnoDB");
@@ -144,6 +146,29 @@ con.connect(function(err) {
 });
   con.on('error', function(err) {
   console.log("[mysql error]",err);
+});
+
+}
+
+// getting screen names for the next influencer
+function nextInfluencer(){
+
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    database: 'twitter'
+  });
+
+  con.connect(function(err) {
+  if (err) throw err;
+  con.query("SELECT name FROM sc_names", function (err, result, fields) {
+    if (err) throw err;
+    console.log(JSON.stringify(result[influencer_nr].name));
+    screen_name=JSON.stringify(result[influencer_nr].name);
+    curs=-1;
+    influencer_nr++;
+  });
 });
 
 }
