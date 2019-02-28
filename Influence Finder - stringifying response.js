@@ -121,7 +121,7 @@ else {
   if(curs=='0')
   nextInfluencer();
   // clearInterval(gettingdata);
-}, 60000);
+}, 3000);
 
 function toDatabase(data){
 
@@ -164,9 +164,10 @@ function nextInfluencer(){
   if (err) throw err;
   con.query("SELECT name FROM sc_names", function (err, result, fields) {
     if (err) throw err;
-    console.log(JSON.stringify(result[influencer_nr].name));
+    console.log((JSON.stringify(result[influencer_nr].name)).replace(/['"]+/g, ''));
     screen_name=JSON.stringify(result[influencer_nr].name);
-    curs=-1;
+    screen_name= screen_name.replace(/['"]+/g, '');           //assigning screend name to a variable and getting rid of quotation marks
+    curs=-1;                                                  //reseting cursor
     influencer_nr++;
   });
 });
