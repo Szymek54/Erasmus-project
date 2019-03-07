@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        
+        <style>
+        
+            body{margin: 0; overflow-y: auto; overflow-x: hidden}
+            #tab{text-align: center;border-collapse: collapse; float: left; width: 100%; box-sizing: border-box }
+            #tab th{padding: 1em 4em 1em 4em;}
+            #tab th{background-color: #1DA1F2; padding-top: 10px; padding-bottom: 10px; color: white}
+            tr{height: 3em;};
+            #tab tr:nth-child(even){background-color: #F5F8FA}
+            #tab tr:nth-child(odd){background-color: #E1E8ED}
+            #tab td:nth-child(3){text-align: left; }
+            #tab tr td:nth-child(2n){border-bottom: dashed 2px grey; padding: 5px 0 5px 0 }
+            #tab tr td:first-child{border-bottom: dashed 2px grey;border-right: dashed 2px grey }
+            #tab tr th:first-child{padding: 1em 4em 1em 4em;}
+            .follower_ids{height: 12em;overflow-x: auto; margin: 0; padding: 1em 2em 1em 2em;box-sizing: border-box}
+            
+            
+        </style>
+        
+    </head>
+    <body>
+
+        <table id="tab"></table>
+       
+        <script>
+            document.addEventListener("DOMContentLoaded", function(event){
+                
+            
+            var tab = document.getElementById("tab");
+            var text = "";
+            
+            halo = JSON.parse(halo);
+            console.log(halo)
+            //Function loading data to the table
+            function load_data(){
+                text += '<tr><th>Account Data</th><th>Followers ID\'s</th></tr>';
+                for(var i=0; i < halo.length; i++)
+                    {
+
+                        text +='<tr><td>Influencer ID</td><td rowspan="4"><div class=follower_ids>';
+                        for(var j=0; j < halo[i].followers.length; j++)
+                            if(j==halo[i].followers.length-1)
+                            text += halo[i].followers[j];
+                            else
+                            text += halo[i].followers[j]+', ';
+                        
+                        text += "<div></td></tr>";
+                        text +='<tr><td>'+halo[i].influencer_id+'</td></tr>';
+                        text +='<tr><td>Audience</td></tr>';
+                        text +='<tr><td>'+halo[i].followers.length+'</td></tr>';
+
+                    }
+                
+                tab.innerHTML=text;
+                text = "";
+            }
+            
+  
+            load_data();    
+        
+        })
+            console.log(halo)
+            console.log(halo.indexOf());
+            console.log(halo.length)
+        </script>
+    
+    </body>
+    
+</html>
